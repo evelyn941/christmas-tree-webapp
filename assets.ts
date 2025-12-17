@@ -44,7 +44,7 @@ import myMusic from './images/song.mp3'; // Or ./audio/song.mp3 if you made an a
  * Set this to `myBackground` (or whatever you named the import above).
  * If null, it uses the default dark green 3D scene.
  */
-export const USER_BACKGROUND: string | null = myBackground; 
+export const USER_BACKGROUND: string | null = null; 
 
 /**
  * EXPORT PHOTOS
@@ -54,8 +54,8 @@ export const USER_BACKGROUND: string | null = myBackground;
  * If this array is empty [], the app will load the random internet placeholders.
  */
 export const USER_PHOTOS: string[] = [
-p1, p2, p3, p4, p5, p6, p7, p8, p9, p10,
-p11, p12, p13, p14, p15, p16, p17, p18, p19, p20
+//p1, p2, p3, p4, p5, p6, p7, p8, p9, p10,
+//p11, p12, p13, p14, p15, p16, p17, p18, p19, p20
 ];
 
 /**
@@ -63,4 +63,4 @@ p11, p12, p13, p14, p15, p16, p17, p18, p19, p20
  * Set this to `myMusic` (or whatever you named the import above).
  * Supported formats: .mp3, .wav, .ogg, .m4a
  */
-export const USER_MUSIC: string | null = myMusic; 
+export const USER_MUSIC: string | null = null; 
