@@ -323,7 +323,7 @@ const App: React.FC = () => {
   const handleSuccess = () => {
       setIsUnlocked(true);
       setIsIntro(true);
-      // Intro finishes after 8 seconds
+      // Intro finishes after 9 seconds to allow for 6s gathering + 3s stabilization
       setTimeout(() => setIsIntro(false), 9000);
   };
 
