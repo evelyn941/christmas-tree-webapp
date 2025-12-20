@@ -142,7 +142,7 @@ class HeartFirework {
     particles: THREE.Points;
     geometry: THREE.BufferGeometry;
     startTime: number;
-    lifeTime: number = 2.8;
+    lifeTime: number = 1.0;
     center: THREE.Vector3;
     count: number = 450;
     vels: Float32Array;
@@ -155,7 +155,7 @@ class HeartFirework {
         const cols = new Float32Array(this.count * 3);
         this.vels = new Float32Array(this.count * 3);
 
-        const color = new THREE.Color('#ffb7c5').multiplyScalar(2.0);
+        const color = new THREE.Color('#ffb7c5').multiplyScalar(1.2);
 
         for (let i = 0; i < this.count; i++) {
             const t = Math.random() * Math.PI * 2;
