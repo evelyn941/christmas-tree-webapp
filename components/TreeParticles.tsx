@@ -12,7 +12,7 @@ import {
 import { ParticleMode, GestureType } from '../types';
 
 // --- CONFIGURATION CONSTANTS ---
-const TEXT_X_OFFSET = 0.5; // Controls left/right position of the "Merry Christmas" text
+const TEXT_X_OFFSET = 1.5; // Controls left/right position of the "Merry Christmas" text
 const TEXT_Y_OFFSET = 2.2;  // Controls up/down position (2.2 is centered for this scene)
 const GLOBAL_PARTICLE_SIZE = 0.12; // Base size for all particles in the Points system
 
