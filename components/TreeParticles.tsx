@@ -142,9 +142,9 @@ class HeartFirework {
     particles: THREE.Points;
     geometry: THREE.BufferGeometry;
     startTime: number;
-    lifeTime: number = 1.0;
+    lifeTime: number = 1.5;
     center: THREE.Vector3;
-    count: number = 450;
+    count: number = 400;
     vels: Float32Array;
     
     constructor(scene: THREE.Group, center: THREE.Vector3, texture: THREE.Texture) {
