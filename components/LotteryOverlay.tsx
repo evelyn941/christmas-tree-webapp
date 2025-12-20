@@ -10,13 +10,15 @@ interface LotteryOverlayProps {
   remainingChances: number;
 }
 
-// Updated Prize List: Sky Blue (#BAE6FD) and Pale Pink (#FBCFE8)
+// Updated Prize List: Sky Blue (#6abce2) and Cherry Blossom Pink (#ffb7c5)
 const PRIZES = [
-  { name: "Fogo de Chão 🥩", weight: 20, color: "#BAE6FD" },       
-  { name: "PS5 Gift Card 🎮", weight: 20, color: "#BAE6FD" },      
-  { name: "Name a Dessert 🍰", weight: 20, color: "#BAE6FD" },     
-  { name: "Qiu Be Punished 😈", weight: 20, color: "#FBCFE8" },    
-  { name: "Rua Gets a Waiver 🎭", weight: 20, color: "#FBCFE8" },  
+  { name: "Qiu Get a Waiver ✨", weight: 15, color: "#6abce2" },       
+  { name: "PS5 Gift Card 🎮", weight: 15, color: "#6abce2" },      
+  { name: "Name a Dessert 🍰", weight: 15, color: "#6abce2" },     
+  { name: "Qiu Be Punished 😼", weight: 15, color: "#ffb7c5" },    
+  { name: "Rua Gets a Waiver 🎭", weight: 15, color: "#ffb7c5" },  
+  { name: "Rua Gets a Lifetime Cute Qiu 💖", weight: 15, color: "#ffb7c5" },
+  { name: "Rua Gets a 吸吸 😈", weight: 10, color: "#ffb7c5" },
 ];
 
 const LotteryOverlay: React.FC<LotteryOverlayProps> = ({ isOpen, onClose, gesture, handPos, history, remainingChances }) => {

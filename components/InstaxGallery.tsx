@@ -96,7 +96,8 @@ const InstaxFrame: React.FC<{
   useFrame((state) => {
     if (!meshRef.current) return;
     const time = state.clock.getElapsedTime();
-    const isScatter = mode === 'SCATTER' || mode === 'OPEN_HAND';
+    // Fix: Removed invalid 'OPEN_HAND' comparison with ParticleMode type.
+    const isScatter = mode === 'SCATTER';
 
     let targetX, targetY, targetZ;
     let targetScale;
@@ -256,15 +257,30 @@ const InstaxFrame: React.FC<{
     >
       <mesh position={[0, 0, 0]}>
         <boxGeometry args={[1.1, 1.4, 0.04]} />
-        <meshStandardMaterial ref={frameMaterialRef} roughness={0.4} metalness={0.0} />
+        <meshStandardMaterial 
+          ref={frameMaterialRef} 
+          roughness={0.4} 
+          metalness={0.0} 
+          transparent={false} 
+          opacity={1.0} 
+        />
       </mesh>
       <mesh position={[0, 0.1, 0.026]}>
         <planeGeometry args={[0.9, 0.9]} />
-        <meshBasicMaterial map={texture} />
+        <meshBasicMaterial 
+          map={texture} 
+          transparent={false} 
+          opacity={1.0} 
+        />
       </mesh>
       <mesh position={[0, 0, -0.026]} rotation={[0, Math.PI, 0]}>
          <planeGeometry args={[1.05, 1.35]} />
-         <meshStandardMaterial color="#222" roughness={0.8} />
+         <meshStandardMaterial 
+          color="#222" 
+          roughness={0.8} 
+          transparent={false} 
+          opacity={1.0} 
+         />
       </mesh>
     </group>
   );
@@ -314,7 +330,8 @@ const InstaxGallery: React.FC<InstaxGalleryProps> = ({ photos, mode, onPhotoClic
       }
 
       // 2. Scatter Mode Scroll (2-Axis Control)
-      if (mode === 'SCATTER' || mode === 'OPEN_HAND') {
+      // Fix: Removed invalid 'OPEN_HAND' comparison with ParticleMode type.
+      if (mode === 'SCATTER') {
           const centerThreshold = 0.15; 
           
           // A. Horizontal Scroll (Yaw)
