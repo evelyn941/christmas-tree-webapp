@@ -346,7 +346,9 @@ const TreeParticles: React.FC<TreeParticlesProps> = ({ mode, targetPos, gesture,
       outerPos[i3+1] = dist * Math.sin(phi) * Math.sin(angle);
       outerPos[i3+2] = dist * Math.cos(phi);
 
-      current[i3] = x; current[i3+1] = y; current[i3+2] = z;
+      current[i3] = outerPos[i3]; // Start at outer positions for smoother intro
+      current[i3+1] = outerPos[i3+1];
+      current[i3+2] = outerPos[i3+2];
       cols[i3] = r; cols[i3+1] = g; cols[i3+2] = b;
       baseCols[i3] = r; baseCols[i3+1] = g; baseCols[i3+2] = b;
       const sr = 10 + Math.random() * 5;
@@ -397,12 +399,13 @@ const TreeParticles: React.FC<TreeParticlesProps> = ({ mode, targetPos, gesture,
     else if (mode === 'HEART') target = targetPositionsMap.HEART;
     else if (mode === 'TEXT_MERRY') target = targetPositionsMap.TEXT_MERRY;
 
-    const introDuration = 4.0;
+    const introDuration = 6.0;
     const elapsed = introStartTimeRef.current ? time - introStartTimeRef.current : 0;
     const introProgress = Math.min(1, elapsed / introDuration);
 
     const positions = posAttr.array as Float32Array;
     const currentColors = colAttr.array as Float32Array;
+    const baseSpeed = isIntro ? 0.04 : 0.08;
     const speed = mode === 'HEART' ? 0.05 : 0.08; 
 
     for (let i = 0; i < TOTAL_PARTICLE_COUNT; i++) {
@@ -413,12 +416,15 @@ const TreeParticles: React.FC<TreeParticlesProps> = ({ mode, targetPos, gesture,
       if (isIntro) {
           const yPos = targetPositionsMap.TREE[i3+1];
           const yNorm = (yPos - (-1.5)) / 7.0; 
-          const waveFront = introProgress * 1.5; 
-          const joinWeight = THREE.MathUtils.smoothstep(waveFront, yNorm, yNorm + 0.2);
+          // Staggered delay based on height (bottom-up arrival)
+          const overlap = 0.4; // controls how much height bands overlap
+          const startDelay = yNorm * (1 - overlap);
+          const particleProgress = THREE.MathUtils.clamp((introProgress - startDelay) / overlap, 0, 1);
+          const easedWeight = THREE.MathUtils.smoothstep(particleProgress, 0, 1);
           
-          tx = THREE.MathUtils.lerp(targetPositionsMap.OUTER[i3], targetPositionsMap.TREE[i3], joinWeight);
-          ty = THREE.MathUtils.lerp(targetPositionsMap.OUTER[i3+1], targetPositionsMap.TREE[i3+1], joinWeight);
-          tz = THREE.MathUtils.lerp(targetPositionsMap.OUTER[i3+2], targetPositionsMap.TREE[i3+2], joinWeight);
+          tx = THREE.MathUtils.lerp(targetPositionsMap.OUTER[i3], targetPositionsMap.TREE[i3], easedWeight);
+          ty = THREE.MathUtils.lerp(targetPositionsMap.OUTER[i3+1], targetPositionsMap.TREE[i3+1], easedWeight);
+          tz = THREE.MathUtils.lerp(targetPositionsMap.OUTER[i3+2], targetPositionsMap.TREE[i3+2], easedWeight);
       } else {
           tx = target[i3];
           ty = target[i3+1];
@@ -434,9 +440,9 @@ const TreeParticles: React.FC<TreeParticlesProps> = ({ mode, targetPos, gesture,
           if (i < TREE_PARTICLE_COUNT) tx += Math.sin(time * 0.5 + positions[i3+1]) * 0.02;
           ty += Math.sin(time * bounceData[i * 2 + 1] + bounceData[i * 2]) * 0.035;
       }
-      positions[i3] += (tx - positions[i3]) * speed;
-      positions[i3+1] += (ty - positions[i3+1]) * speed;
-      positions[i3+2] += (tz - positions[i3+2]) * speed;
+      positions[i3] += (tx - positions[i3]) * lerpSpeed;
+      positions[i3+1] += (ty - positions[i3+1]) * lerpSpeed;
+      positions[i3+2] += (tz - positions[i3+2]) * lerpSpeed;
       let tr, tg, tb;
       if (mode === 'HEART') {
           tr = colorPrimary.r; tg = colorPrimary.g; tb = colorPrimary.b;

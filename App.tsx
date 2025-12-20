@@ -324,7 +324,7 @@ const App: React.FC = () => {
       setIsUnlocked(true);
       setIsIntro(true);
       // Intro finishes after 8 seconds
-      setTimeout(() => setIsIntro(false), 8000);
+      setTimeout(() => setIsIntro(false), 9000);
   };
 
   // --- PASSCODE GATE ---
