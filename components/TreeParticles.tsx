@@ -155,7 +155,7 @@ class HeartFirework {
         const cols = new Float32Array(this.count * 3);
         this.vels = new Float32Array(this.count * 3);
 
-        const color = new THREE.Color('#ffb7c5').multiplyScalar(1.2);
+        const color = new THREE.Color('#ffb7c5').multiplyScalar(1.0);
 
         for (let i = 0; i < this.count; i++) {
             const t = Math.random() * Math.PI * 2;
@@ -216,7 +216,7 @@ class HeartFirework {
             this.vels[i3+2] *= 0.97;
         }
         posAttr.needsUpdate = true;
-        (this.particles.material as THREE.PointsMaterial).opacity = Math.pow(1 - norm, 1.5);
+        (this.particles.material as THREE.PointsMaterial).opacity = Math.pow(1 - norm, 3.0);
         return true;
     }
 
