@@ -233,7 +233,7 @@ const InstaxFrame: React.FC<{
         // Only active focus logic remains
         if (isScatter) {
              if (isFocus) {
-                 targetEmissive = 0.05;
+                 targetEmissive = 0.35;
              }
         }
         
