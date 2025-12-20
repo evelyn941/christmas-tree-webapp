@@ -226,14 +226,14 @@ const InstaxFrame: React.FC<{
 
     // --- MATERIAL UPDATES ---
     if (frameMaterialRef.current) {
-        let targetEmissive = 0.05;
+        let targetEmissive = 0.2;
         let targetColor = new THREE.Color("#FFFFFF");
         let targetEmissiveColor = new THREE.Color("#FFFFFF");
         
         // Only active focus logic remains
         if (isScatter) {
              if (isFocus) {
-                 targetEmissive = 0.35;
+                 targetEmissive = 0.0;
              }
         }
         
