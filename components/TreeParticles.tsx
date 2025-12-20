@@ -216,7 +216,7 @@ class HeartFirework {
             this.vels[i3+2] *= 0.97;
         }
         posAttr.needsUpdate = true;
-        (this.particles.material as THREE.PointsMaterial).opacity = Math.pow(1 - norm, 2.0);
+        (this.particles.material as THREE.PointsMaterial).opacity = Math.pow(1 - norm, 3.0);
         return true;
     }
 
