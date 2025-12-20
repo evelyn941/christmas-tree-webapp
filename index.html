@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -14,23 +15,29 @@
       body {
         margin: 0;
         overflow: hidden;
-        background-color: #050a05; /* Deep dark green/black base */
-        font-family: 'Playfair Display', serif; /* Perfil alternative for web */
+        background-color: #050a05;
+        font-family: 'Playfair Display', serif;
       }
       canvas {
         touch-action: none;
       }
-      /* Custom scrollbar for gallery if needed */
       ::-webkit-scrollbar {
         width: 0px;
         background: transparent;
       }
-      /* Font Preloader - Forces browser to download fonts immediately */
       #font-preloader {
         position: absolute;
         opacity: 0;
         pointer-events: none;
         z-index: -1;
+      }
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-10px); }
+        75% { transform: translateX(10px); }
+      }
+      .animate-shake {
+        animation: shake 0.4s ease-in-out;
       }
     </style>
   <script type="importmap">
@@ -52,10 +59,7 @@
 </head>
   <body>
     <div id="root"></div>
-    <!-- Entry point for Vite -->
-    <script type="module" src="/index.tsx"></script>
-    
-    <!-- Hidden text elements to force font loading -->
+    <script type="module" src="./index.tsx"></script>
     <div id="font-preloader">
         <span style="font-family: 'Great Vibes', cursive;">Preload</span>
         <span style="font-family: 'Pinyon Script', cursive;">Preload</span>
