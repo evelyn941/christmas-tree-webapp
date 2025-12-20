@@ -180,7 +180,7 @@ class HeartFirework {
         this.geometry.setAttribute('color', new THREE.BufferAttribute(cols, 3));
 
         const mat = new THREE.PointsMaterial({
-            size: 0.25,
+            size: 0.20,
             vertexColors: true,
             transparent: true,
             blending: THREE.AdditiveBlending,
