@@ -14,11 +14,11 @@ interface LotteryOverlayProps {
 const PRIZES = [
   { name: "Qiu Get a Waiver ✨", weight: 15, color: "#6abce2" },       
   { name: "PS5 Gift Card 🎮", weight: 15, color: "#6abce2" },      
-  { name: "Name a Dessert 🍰", weight: 15, color: "#6abce2" },     
-  { name: "Qiu Be Punished 😼", weight: 15, color: "#ffb7c5" },    
+  { name: "Name a Dessert 🍰", weight: 15, color: "#6abce2" },  
+  { name: "One Free 吸吸 😼", weight: 10, color: "#6abce2" },   
+  { name: "Qiu Be Punished 😈", weight: 15, color: "#ffb7c5" },    
   { name: "Rua Gets a Waiver 🎭", weight: 15, color: "#ffb7c5" },  
   { name: "Rua Gets a Lifetime Cute Qiu 💖", weight: 15, color: "#ffb7c5" },
-  { name: "Rua Gets a 吸吸 😈", weight: 10, color: "#ffb7c5" },
 ];
 
 const LotteryOverlay: React.FC<LotteryOverlayProps> = ({ isOpen, onClose, gesture, handPos, history, remainingChances }) => {

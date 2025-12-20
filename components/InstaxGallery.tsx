@@ -24,7 +24,8 @@ const CLUSTER_LIFT_Y = 2.0;
 
 const COLOR_WHITE = new THREE.Color('#ffffff');
 const COLOR_BLUE = new THREE.Color('#6abce2');
-const COLOR_BLACK = new THREE.Color('#000000');
+// Increased emissive color from #222222 to #888888 for a much brighter "white paper" appearance
+const COLOR_OFF_WHITE_EMISSIVE = new THREE.Color('#888888'); 
 
 const getClusterLayout = (id: number, total: number) => {
     const phi = Math.PI * (3 - Math.sqrt(5)); 
@@ -175,11 +176,18 @@ const InstaxFrame: React.FC<{
         frameMaterialRef.current.opacity = opacityProgress;
         photoMaterialRef.current.opacity = opacityProgress;
         backMaterialRef.current.opacity = opacityProgress;
-        let targetEmissiveIntensity = 0.2;
-        if (isScatter && isFocus) targetEmissiveIntensity = 0.35;
+        
+        // Boosted emissive intensity to ensure the "white" looks crisp and illuminated
+        let targetEmissiveIntensity = isFocus ? 2.5 : 1.5; 
+        let targetEmissiveColor = isFocus ? COLOR_BLUE : COLOR_OFF_WHITE_EMISSIVE;
+        
+        if (isScatter && isFocus) {
+            targetEmissiveIntensity = 3.0;
+        }
+
         frameMaterialRef.current.emissiveIntensity = THREE.MathUtils.lerp(frameMaterialRef.current.emissiveIntensity, targetEmissiveIntensity, 0.05);
         frameMaterialRef.current.color.lerp(COLOR_WHITE, 0.05);
-        frameMaterialRef.current.emissive.lerp(isFocus ? COLOR_BLUE : COLOR_BLACK, 0.05);
+        frameMaterialRef.current.emissive.lerp(targetEmissiveColor, 0.05);
     }
   });
 
@@ -198,10 +206,13 @@ const InstaxFrame: React.FC<{
         <boxGeometry args={[1.1, 1.4, 0.04]} />
         <meshStandardMaterial 
           ref={frameMaterialRef} 
-          roughness={0.4} 
+          roughness={0.1} 
           metalness={0.0} 
           transparent={true} 
           opacity={1.0} 
+          color="#ffffff"
+          emissive="#888888"
+          emissiveIntensity={1.5}
         />
       </mesh>
       <mesh position={[0, 0.1, 0.026]}>
@@ -217,7 +228,7 @@ const InstaxFrame: React.FC<{
          <planeGeometry args={[1.05, 1.35]} />
          <meshStandardMaterial 
           ref={backMaterialRef}
-          color="#222" 
+          color="#222222" 
           roughness={0.8} 
           transparent={true} 
           opacity={1.0} 
