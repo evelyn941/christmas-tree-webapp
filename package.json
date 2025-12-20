@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://evelyn941.github.io/christmas-tree-webapp",
+  "homepage": "https://evelyn941.github.io/qiu-christmas-tree",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
