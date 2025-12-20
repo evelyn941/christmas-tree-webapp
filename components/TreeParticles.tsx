@@ -12,7 +12,7 @@ import {
 import { ParticleMode, GestureType } from '../types';
 
 // --- CONFIGURATION CONSTANTS ---
-const TEXT_X_OFFSET = 1.5; // Controls left/right position of the "Merry Christmas" text
+const TEXT_X_OFFSET = -1.5; // Controls left/right position of the "Merry Christmas" text
 const TEXT_Y_OFFSET = 2.2;  // Controls up/down position (2.2 is centered for this scene)
 const GLOBAL_PARTICLE_SIZE = 0.12; // Base size for all particles in the Points system
 
@@ -21,6 +21,7 @@ interface TreeParticlesProps {
   targetPos?: { x: number, y: number };
   gesture?: GestureType;
   onTreeClick?: () => void;
+  isIntro?: boolean;
 }
 
 const END_TREE = TREE_PARTICLE_COUNT;
@@ -142,9 +143,9 @@ class HeartFirework {
     particles: THREE.Points;
     geometry: THREE.BufferGeometry;
     startTime: number;
-    lifeTime: number = 1.5;
+    lifeTime: number = 2.8;
     center: THREE.Vector3;
-    count: number = 400;
+    count: number = 450;
     vels: Float32Array;
     
     constructor(scene: THREE.Group, center: THREE.Vector3, texture: THREE.Texture) {
@@ -155,7 +156,7 @@ class HeartFirework {
         const cols = new Float32Array(this.count * 3);
         this.vels = new Float32Array(this.count * 3);
 
-        const color = new THREE.Color('#ffb7c5').multiplyScalar(1.0);
+        const color = new THREE.Color('#ffb7c5').multiplyScalar(2.0);
 
         for (let i = 0; i < this.count; i++) {
             const t = Math.random() * Math.PI * 2;
@@ -180,7 +181,7 @@ class HeartFirework {
         this.geometry.setAttribute('color', new THREE.BufferAttribute(cols, 3));
 
         const mat = new THREE.PointsMaterial({
-            size: 0.20,
+            size: 0.25,
             vertexColors: true,
             transparent: true,
             blending: THREE.AdditiveBlending,
@@ -216,7 +217,7 @@ class HeartFirework {
             this.vels[i3+2] *= 0.97;
         }
         posAttr.needsUpdate = true;
-        (this.particles.material as THREE.PointsMaterial).opacity = Math.pow(1 - norm, 3.0);
+        (this.particles.material as THREE.PointsMaterial).opacity = Math.pow(1 - norm, 1.5);
         return true;
     }
 
@@ -240,6 +241,7 @@ const TreeParticles: React.FC<TreeParticlesProps> = ({ mode, targetPos, gesture,
   const rotationRef = useRef(0);
   const momentumRef = useRef(0);
   const lastXRef = useRef(0.5);
+  const introStartTimeRef = useRef<number | null>(null);
   
   const fireworksArr = useRef<HeartFirework[]>([]);
   const lastFireworkTime = useRef(0);
@@ -259,7 +261,8 @@ const TreeParticles: React.FC<TreeParticlesProps> = ({ mode, targetPos, gesture,
 
     const treePos = new Float32Array(TOTAL_PARTICLE_COUNT * 3);
     const scatterPos = new Float32Array(TOTAL_PARTICLE_COUNT * 3);
-    
+    const outerPos = new Float32Array(TOTAL_PARTICLE_COUNT * 3); 
+
     const colorPrimaryVal = new THREE.Color('#6abce2');
     const colorSecondary = new THREE.Color('#759cd0');
     const colorWhite = new THREE.Color('#FFFFFF');
@@ -335,6 +338,14 @@ const TreeParticles: React.FC<TreeParticlesProps> = ({ mode, targetPos, gesture,
       }
       szs[i] = size; baseSzs[i] = size;
       treePos[i3] = x; treePos[i3+1] = y; treePos[i3+2] = z;
+
+      const dist = 25 + Math.random() * 15;
+      const angle = Math.random() * Math.PI * 2;
+      const phi = Math.random() * Math.PI;
+      outerPos[i3] = dist * Math.sin(phi) * Math.cos(angle);
+      outerPos[i3+1] = dist * Math.sin(phi) * Math.sin(angle);
+      outerPos[i3+2] = dist * Math.cos(phi);
+
       current[i3] = x; current[i3+1] = y; current[i3+2] = z;
       cols[i3] = r; cols[i3+1] = g; cols[i3+2] = b;
       baseCols[i3] = r; baseCols[i3+1] = g; baseCols[i3+2] = b;
@@ -371,6 +382,11 @@ const TreeParticles: React.FC<TreeParticlesProps> = ({ mode, targetPos, gesture,
   useFrame((state, delta) => {
     if (!pointsRef.current) return;
     const time = state.clock.getElapsedTime();
+
+    if (isIntro && introStartTimeRef.current === null) {
+        introStartTimeRef.current = time;
+    }
+
     const posAttr = pointsRef.current.geometry.attributes.position;
     const colAttr = pointsRef.current.geometry.attributes.color;
     const sizeAttr = pointsRef.current.geometry.attributes.size;
@@ -380,11 +396,9 @@ const TreeParticles: React.FC<TreeParticlesProps> = ({ mode, targetPos, gesture,
     else if (mode === 'HEART') target = targetPositionsMap.HEART;
     else if (mode === 'TEXT_MERRY') target = targetPositionsMap.TEXT_MERRY;
 
-    let offsetX = 0, offsetY = 0;
-    if (targetPos && mode !== 'TREE') {
-         offsetX = (targetPos.x - 0.5) * 10;
-         offsetY = -(targetPos.y - 0.5) * 5;
-    }
+    const introDuration = 4.0;
+    const elapsed = introStartTimeRef.current ? time - introStartTimeRef.current : 0;
+    const introProgress = Math.min(1, elapsed / introDuration);
 
     const positions = posAttr.array as Float32Array;
     const currentColors = colAttr.array as Float32Array;
@@ -392,10 +406,30 @@ const TreeParticles: React.FC<TreeParticlesProps> = ({ mode, targetPos, gesture,
 
     for (let i = 0; i < TOTAL_PARTICLE_COUNT; i++) {
       const i3 = i * 3;
-      let tx = target[i3] + offsetX;
-      let ty = target[i3+1] + offsetY;
-      let tz = target[i3+2];
-      if (mode === 'TREE') {
+
+      let tx, ty, tz;
+
+      if (isIntro) {
+          const yPos = targetPositionsMap.TREE[i3+1];
+          const yNorm = (yPos - (-1.5)) / 7.0; 
+          const waveFront = introProgress * 1.5; 
+          const joinWeight = THREE.MathUtils.smoothstep(waveFront, yNorm, yNorm + 0.2);
+          
+          tx = THREE.MathUtils.lerp(targetPositionsMap.OUTER[i3], targetPositionsMap.TREE[i3], joinWeight);
+          ty = THREE.MathUtils.lerp(targetPositionsMap.OUTER[i3+1], targetPositionsMap.TREE[i3+1], joinWeight);
+          tz = THREE.MathUtils.lerp(targetPositionsMap.OUTER[i3+2], targetPositionsMap.TREE[i3+2], joinWeight);
+      } else {
+          tx = target[i3];
+          ty = target[i3+1];
+          tz = target[i3+2];
+      }
+
+      if (targetPos && mode !== 'TREE' && !isIntro) {
+         tx += (targetPos.x - 0.5) * 10;
+         ty += -(targetPos.y - 0.5) * 5;
+      }
+
+      if (mode === 'TREE' || isIntro) {
           if (i < TREE_PARTICLE_COUNT) tx += Math.sin(time * 0.5 + positions[i3+1]) * 0.02;
           ty += Math.sin(time * bounceData[i * 2 + 1] + bounceData[i * 2]) * 0.035;
       }
@@ -420,7 +454,7 @@ const TreeParticles: React.FC<TreeParticlesProps> = ({ mode, targetPos, gesture,
     for(let idx of lightIndices) {
         sizeArray[idx] = baseSizes[idx] * (0.8 + 0.6 * Math.sin(time * 3 + idx * 0.1));
     }
-    if (mode === 'TREE') {
+    if (mode === 'TREE' || isIntro) {
         for(let idx of spiralIndices) {
             const twinkle = 0.8 + 0.4 * Math.sin(time * 8 + idx * 0.5);
             const flow = 1.0 + 0.3 * Math.sin(time * 3 - ((idx - TREE_PARTICLE_COUNT) / SPIRAL_PARTICLE_COUNT) * 10);
@@ -446,7 +480,7 @@ const TreeParticles: React.FC<TreeParticlesProps> = ({ mode, targetPos, gesture,
         return active;
     });
 
-    if (mode === 'TREE') {
+    if (mode === 'TREE' || isIntro) {
         if (gesture === GestureType.FIST && targetPos) {
             const dx = targetPos.x - lastXRef.current;
             if (Math.abs(dx) > 0.001) momentumRef.current += dx * 35.0;
@@ -456,6 +490,7 @@ const TreeParticles: React.FC<TreeParticlesProps> = ({ mode, targetPos, gesture,
         rotationRef.current += (0.25 + momentumRef.current) * delta;
         pointsRef.current.rotation.y = rotationRef.current;
         if (starGroupRef.current) {
+            const starScale = isIntro ? introProgress : 1.0;
             starGroupRef.current.position.y = 5.6 + Math.sin(time * 1.5) * 0.05;
             starGroupRef.current.scale.lerp(new THREE.Vector3(1, 1, 1), 0.05);
             const breath = (Math.sin(time * 1.5) + 1) * 0.5; 

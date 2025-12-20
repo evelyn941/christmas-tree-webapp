@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, useState } from 'react';
+import React, { useRef, useMemo, useState, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { ParticleMode, InstaxPhoto, GestureType } from '../types';
@@ -71,9 +71,13 @@ const InstaxFrame: React.FC<{
   handSize: number;
   isFocus: boolean;
   onClick: (id: number) => void;
+  isIntro?: boolean;
+  introTimer: number;
 }> = ({ photo, totalPhotos, mode, globalRotation, scrollRotation, scrollPitch, swaySpeed, handPos, handSize, isFocus, onClick }) => {
   const meshRef = useRef<THREE.Group>(null);
   const frameMaterialRef = useRef<THREE.MeshStandardMaterial>(null);
+  const photoMaterialRef = useRef<THREE.MeshBasicMaterial>(null);
+  const backMaterialRef = useRef<THREE.MeshStandardMaterial>(null);
   const texture = useMemo(() => new THREE.TextureLoader().load(photo.url), [photo.url]);
   const { camera } = useThree();
   
@@ -93,11 +97,27 @@ const InstaxFrame: React.FC<{
      return { radius, angle, y: photo.position[1] };
   }, [photo.position]);
 
+  const startDelay = useMemo(() => {
+    // Top-to-bottom sequence
+    // treeParams.y ranges from roughly -1.2 to 4.6
+    const relY = (treeParams.y - (-1.2)) / 5.8; // 0 (bottom) to 1 (top)
+    return (1.0 - relY) * 3.0 + 0.5; // Starts at 0.5s, spreads over 3s
+  }, [treeParams.y]);
+
+  useEffect(() => {
+    if (isIntro && meshRef.current) {
+        meshRef.current.position.set(0, 10, 20); // Far behind camera
+        meshRef.current.scale.set(0, 0, 0);
+    }
+  }, [isIntro]);
+
   useFrame((state) => {
     if (!meshRef.current) return;
     const time = state.clock.getElapsedTime();
     // Fix: Removed invalid 'OPEN_HAND' comparison with ParticleMode type.
     const isScatter = mode === 'SCATTER';
+
+    const canAppear = !isIntro || introTimer > startDelay;
 
     let targetX, targetY, targetZ;
     let targetScale;
@@ -220,22 +240,26 @@ const InstaxFrame: React.FC<{
     // Gentle transition for everything
     const lerpSpeed = 0.03;
 
-    meshRef.current.position.lerp(new THREE.Vector3(targetX, targetY, targetZ), lerpSpeed);
-    meshRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), lerpSpeed);
-    meshRef.current.quaternion.slerp(new THREE.Quaternion().setFromEuler(targetRot), lerpSpeed);
+    const targetPos = new THREE.Vector3(targetX, targetY, targetZ);
 
-    // --- MATERIAL UPDATES ---
-    if (frameMaterialRef.current) {
-        let targetEmissive = 0.2;
-        let targetColor = new THREE.Color("#FFFFFF");
-        let targetEmissiveColor = new THREE.Color("#FFFFFF");
-        
-        // Only active focus logic remains
-        if (isScatter) {
-             if (isFocus) {
-                 targetEmissive = 0.35;
-             }
+    if (canAppear || !isIntro) {
+        meshRef.current.position.lerp(targetPos, lerpSpeed);
+        meshRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), lerpSpeed);
+        meshRef.current.quaternion.slerp(new THREE.Quaternion().setFromEuler(targetRot), lerpSpeed);
+    }
+
+    if (frameMaterialRef.current && photoMaterialRef.current && backMaterialRef.current) {
+        let opacityProgress = 1.0;
+        if (isIntro) {
+            opacityProgress = THREE.MathUtils.smoothstep(introTimer, startDelay, startDelay + 1.0);
         }
+        
+        frameMaterialRef.current.opacity = opacityProgress;
+        photoMaterialRef.current.opacity = opacityProgress;
+        backMaterialRef.current.opacity = opacityProgress;
+
+        let targetEmissive = 0.2;
+        if (isScatter && isFocus) targetEmissive = 0.35;
         
         frameMaterialRef.current.emissiveIntensity = THREE.MathUtils.lerp(frameMaterialRef.current.emissiveIntensity, targetEmissive, 0.05);
         frameMaterialRef.current.color.lerp(targetColor, 0.05);
@@ -292,6 +316,7 @@ const InstaxGallery: React.FC<InstaxGalleryProps> = ({ photos, mode, onPhotoClic
   const scrollPitchRef = useRef(0); // Vertical Rotation
   const momentumRef = useRef(0);
   const lastXRef = useRef(0.5);
+  const [introTimer, setIntroTimer] = useState(0);
   
   // Calculate random sway speeds once per photo count to avoid jitter on re-renders
   const swaySpeeds = useMemo(() => {
@@ -303,6 +328,9 @@ const InstaxGallery: React.FC<InstaxGalleryProps> = ({ photos, mode, onPhotoClic
   }, [photos.length]);
 
   useFrame((state, delta) => {
+      if (isIntro) {
+          setIntroTimer(prev => prev + delta);
+      }
       // 1. Tree Mode Rotation
       let rotationSpeed = 0.25; 
 
