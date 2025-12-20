@@ -194,7 +194,7 @@ const SceneBackground: React.FC<{ imageUrl: string | null }> = ({ imageUrl }) =>
 
 const App: React.FC = () => {
   const [isUnlocked, setIsUnlocked] = useState(false);
-  const [isIntro, setIsIntro] = useState(false); // Controls opening animation
+  const [isIntro, setIsIntro] = useState(false); 
   const [gesture, setGesture] = useState<GestureType>(GestureType.NONE);
   const [handPos, setHandPos] = useState<{ x: number, y: number }>({ x: 0.5, y: 0.5 });
   const [handSize, setHandSize] = useState<number>(0);
@@ -320,13 +320,20 @@ const App: React.FC = () => {
       setGalleryPhotos(newPhotos);
   };
 
+  const handleSuccess = () => {
+      setIsUnlocked(true);
+      setIsIntro(true);
+      // Intro finishes after 8 seconds
+      setTimeout(() => setIsIntro(false), 8000);
+  };
+
   // --- PASSCODE GATE ---
   if (!isUnlocked) {
     return (
       <div className="w-full h-screen bg-[#01080e] relative" onMouseMove={handleMouseMove}>
          <CameraFeed onGestureChange={handleGestureChange} />
          <PasscodeGate 
-            onSuccess={() => setIsUnlocked(true)} 
+            onSuccess={handleSuccess} 
             gesture={gesture} 
             handPos={handPos} 
          />

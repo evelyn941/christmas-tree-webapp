@@ -12,7 +12,7 @@ import {
 import { ParticleMode, GestureType } from '../types';
 
 // --- CONFIGURATION CONSTANTS ---
-const TEXT_X_OFFSET = -1.5; // Controls left/right position of the "Merry Christmas" text
+const TEXT_X_OFFSET = 1.5; // Controls left/right position of the "Merry Christmas" text
 const TEXT_Y_OFFSET = 2.2;  // Controls up/down position (2.2 is centered for this scene)
 const GLOBAL_PARTICLE_SIZE = 0.12; // Base size for all particles in the Points system
 
@@ -228,7 +228,7 @@ class HeartFirework {
     }
 }
 
-const TreeParticles: React.FC<TreeParticlesProps> = ({ mode, targetPos, gesture, onTreeClick }) => {
+const TreeParticles: React.FC<TreeParticlesProps> = ({ mode, targetPos, gesture, onTreeClick, isIntro }) => {
   const pointsRef = useRef<THREE.Points>(null);
   const fireworksGroupRef = useRef<THREE.Group>(null);
   const starGroupRef = useRef<THREE.Group>(null);
@@ -367,6 +367,7 @@ const TreeParticles: React.FC<TreeParticlesProps> = ({ mode, targetPos, gesture,
         SCATTER: scatterPos,
         HEART: textTarget,
         TEXT_MERRY: generateTextPositions("Merry Christmas", TOTAL_PARTICLE_COUNT, 8, 'bold 200px "Playfair Display", serif', 0, 0),
+        OUTER: outerPos,
       },
       colors: cols,
       baseColors: baseCols,
@@ -492,7 +493,7 @@ const TreeParticles: React.FC<TreeParticlesProps> = ({ mode, targetPos, gesture,
         if (starGroupRef.current) {
             const starScale = isIntro ? introProgress : 1.0;
             starGroupRef.current.position.y = 5.6 + Math.sin(time * 1.5) * 0.05;
-            starGroupRef.current.scale.lerp(new THREE.Vector3(1, 1, 1), 0.05);
+            starGroupRef.current.scale.set(starScale, starScale, starScale);
             const breath = (Math.sin(time * 1.5) + 1) * 0.5; 
             if (starHaloRef.current) {
                 starHaloRef.current.scale.set(0.93 + breath * 0.1, 0.93 + breath * 0.1, 1);
