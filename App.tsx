@@ -124,14 +124,27 @@ const MusicControl: React.FC = () => {
     });
     const [isPlaying, setIsPlaying] = useState(false);
 
+    // Automatically start music once the user unlocks (when this component mounts)
+    useEffect(() => {
+        if (audio) {
+            audio.play()
+                .then(() => setIsPlaying(true))
+                .catch(e => {
+                    console.log("Auto-play failed. User interaction might still be required for some browsers.", e);
+                });
+        }
+    }, [audio]);
+
     const toggleMusic = () => {
         if (!audio) return;
         if (isPlaying) {
             audio.pause();
+            setIsPlaying(false);
         } else {
-            audio.play().catch(e => console.log("Audio playback failed:", e));
+            audio.play()
+                .then(() => setIsPlaying(true))
+                .catch(e => console.log("Audio playback failed:", e));
         }
-        setIsPlaying(!isPlaying);
     };
 
     if (!audio) return null;
