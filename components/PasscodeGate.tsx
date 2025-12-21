@@ -99,7 +99,7 @@ const PasscodeGate: React.FC<PasscodeGateProps> = ({ onSuccess, gesture, handPos
               className={`
                 relative px-12 py-3 rounded-full border transition-all duration-500 group overflow-hidden
                 ${code.length === 8 
-                  ? 'border-blue-300/40 text-[#dbeafe] hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(96,165,250,0.1)]' 
+                  ? 'border-blue-300/40 text-[#9ac3f6] hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(96,165,250,0.1)]' 
                   : 'border-white/5 text-slate-600 cursor-not-allowed'}
                 ${isHovering && code.length === 8 ? 'bg-blue-400/10 border-blue-200 scale-110 shadow-[0_0_40px_rgba(96,165,250,0.3)] text-blue-100' : ''}
               `}
